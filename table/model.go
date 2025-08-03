@@ -11,9 +11,7 @@ const (
 	columnKeySelect = "___select___"
 )
 
-var (
-	defaultHighlightStyle = lipgloss.NewStyle().Background(lipgloss.Color("#334"))
-)
+var defaultHighlightStyle = lipgloss.NewStyle().Background(lipgloss.Color("#334"))
 
 // Model is the main table model.  Create using New().
 type Model struct {
@@ -46,6 +44,10 @@ type Model struct {
 
 	selectableRows bool
 	rowCursorIndex int
+
+	// Cell selection
+	cursorColIndex int
+	selectedCells  map[CellKey]bool
 
 	// Events
 	lastUpdateUserEvents []UserEvent
@@ -110,6 +112,39 @@ type Model struct {
 	multiline bool
 }
 
+type CellKey struct {
+	RowID uint32
+	ColKey string
+}
+
+func (m *Model) ToggleCellSelection() {
+	if len(m.rows) == 0 || len(m.columns) == 0 {
+		return
+	}
+
+	row := m.visibleRowCache[m.rowCursorIndex]
+	col := m.columns[m.cursorColIndex]
+
+	key := CellKey{RowID: row.id, ColKey: col.key}
+	if m.selectedCells[key] {
+		delete(m.selectedCells, key)
+	} else {
+		m.selectedCells[key] = true
+	}
+}
+
+func (m *Model) SelectedCells() []CellKey {
+	out := make([]CellKey, 0, len(m.selectedCells))
+	for k := range m.selectedCells {
+		out = append(out, k)
+	}
+	return out
+}
+
+func (m *Model) ClearSelectedCells() {
+	m.selectedCells = make(map[CellKey]bool)
+}
+
 // New creates a new table ready for further modifications.
 func New(columns []Column) Model {
 	filterInput := textinput.New()
@@ -130,6 +165,9 @@ func New(columns []Column) Model {
 		baseStyle:       lipgloss.NewStyle().Align(lipgloss.Right),
 
 		paginationWrapping: true,
+
+		cursorColIndex: 0,
+		selectedCells:  make(map[CellKey]bool),
 	}
 
 	// Do a full deep copy to avoid unexpected edits

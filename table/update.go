@@ -25,6 +25,43 @@ func (m *Model) moveHighlightDown() {
 	m.currentPage = m.expectedPageForRowIndex(m.rowCursorIndex)
 }
 
+func (m *Model) moveHighlightLeft() {
+	m.cursorColIndex--
+	if m.cursorColIndex < 0 {
+		m.cursorColIndex = len(m.columns) - 1
+	}
+}
+
+func (m *Model) moveHighlightRight() {
+	m.cursorColIndex++
+	if m.cursorColIndex >= len(m.columns) {
+		m.cursorColIndex = 0
+	}
+}
+
+func (m *Model) toggleCellSelect() {
+	if len(m.GetVisibleRows()) == 0 || len(m.columns) == 0 {
+		return
+	}
+
+	row := m.GetVisibleRows()[m.rowCursorIndex]
+	col := m.columns[m.cursorColIndex]
+
+	key := CellKey{RowID: row.id, ColKey: col.key}
+
+	if m.selectedCells[key] {
+		delete(m.selectedCells, key)
+	} else {
+		m.selectedCells[key] = true
+	}
+
+	m.appendUserEvent(UserEventCellSelectToggled{
+		RowIndex:    m.rowCursorIndex,
+		ColumnIndex: m.cursorColIndex,
+		IsSelected:  m.selectedCells[key],
+	})
+}
+
 func (m *Model) toggleSelect() {
 	if !m.selectableRows || len(m.GetVisibleRows()) == 0 {
 		return
@@ -82,6 +119,19 @@ func (m *Model) handleKeypress(msg tea.KeyMsg) {
 
 	if key.Matches(msg, m.keyMap.RowSelectToggle) {
 		m.toggleSelect()
+	}
+	// Horizontal movement
+	if key.Matches(msg, m.keyMap.ScrollLeft) {
+		m.moveHighlightLeft()
+	}
+
+	if key.Matches(msg, m.keyMap.ScrollRight) {
+		m.moveHighlightRight()
+	}
+
+	// Cell select toggle
+	if key.Matches(msg, m.keyMap.CellSelectToggle) {
+		m.toggleCellSelect()
 	}
 
 	if key.Matches(msg, m.keyMap.PageDown) {

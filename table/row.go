@@ -96,6 +96,20 @@ func (m Model) renderRowColumnData(row Row, column Column, rowStyle lipgloss.Sty
 		}
 	}
 
+	rowIndex := m.rowIndexForID(row.id)
+	colIndex := m.columnIndexForKey(column.key)
+	cellKey := CellKey{RowID: row.id, ColKey: column.key}
+
+	// Highlight cursor cell
+	if m.focused && rowIndex == m.rowCursorIndex && colIndex == m.cursorColIndex {
+		cellStyle = cellStyle.Copy().Foreground(lipgloss.Color("yellow")).Bold(true)
+	}
+
+	// Highlight selected cells
+	if m.selectedCells[cellKey] {
+		cellStyle = cellStyle.Copy().Background(lipgloss.Color("27")) // blue
+	}
+
 	if m.multiline {
 		str = wordwrap.String(str, column.width)
 		cellStyle = cellStyle.Align(lipgloss.Top)
@@ -238,4 +252,22 @@ func (r Row) Selected(selected bool) Row {
 	r.selected = selected
 
 	return r
+}
+
+func (m Model) rowIndexForID(id uint32) int {
+	for i, r := range m.GetVisibleRows() {
+		if r.id == id {
+			return i
+		}
+	}
+	return -1
+}
+
+func (m Model) columnIndexForKey(key string) int {
+	for i, c := range m.columns {
+		if c.key == key {
+			return i
+		}
+	}
+	return -1
 }
