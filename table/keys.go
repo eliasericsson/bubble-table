@@ -7,7 +7,8 @@ type KeyMap struct {
 	RowDown key.Binding
 	RowUp   key.Binding
 
-	RowSelectToggle key.Binding
+	RowSelectToggle  key.Binding
+	CellSelectToggle key.Binding
 
 	PageDown  key.Binding
 	PageUp    key.Binding
@@ -33,53 +34,68 @@ type KeyMap struct {
 // DefaultKeyMap returns a set of sensible defaults for controlling a focused table with help text.
 func DefaultKeyMap() KeyMap {
 	return KeyMap{
+		// Vertical movement
 		RowDown: key.NewBinding(
-			key.WithKeys("down", "j"),
-			key.WithHelp("↓/j", "move down"),
+			key.WithKeys("down"),
+			key.WithHelp("↓", "move down"),
 		),
 		RowUp: key.NewBinding(
-			key.WithKeys("up", "k"),
-			key.WithHelp("↑/k", "move up"),
+			key.WithKeys("up"),
+			key.WithHelp("↑", "move up"),
 		),
+
+		// Row selection
 		RowSelectToggle: key.NewBinding(
-			key.WithKeys(" ", "enter"),
-			key.WithHelp("<space>/enter", "select row"),
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "select row"),
 		),
+
+		// Cell selection
+		CellSelectToggle: key.NewBinding(
+			key.WithKeys(" "),
+			key.WithHelp("space", "select cell"),
+		),
+
+		// Horizontal movement
+		ScrollLeft: key.NewBinding(
+			key.WithKeys("left"),
+			key.WithHelp("←", "move left"),
+		),
+		ScrollRight: key.NewBinding(
+			key.WithKeys("right"),
+			key.WithHelp("→", "move right"),
+		),
+
+		// Paging (optional, keep same as bubble-table)
 		PageDown: key.NewBinding(
-			key.WithKeys("right", "l", "pgdown"),
-			key.WithHelp("→/h/page down", "next page"),
+			key.WithKeys("pgdown"),
+			key.WithHelp("PgDn", "next page"),
 		),
 		PageUp: key.NewBinding(
-			key.WithKeys("left", "h", "pgup"),
-			key.WithHelp("←/h/page up", "previous page"),
+			key.WithKeys("pgup"),
+			key.WithHelp("PgUp", "prev page"),
 		),
 		PageFirst: key.NewBinding(
-			key.WithKeys("home", "g"),
-			key.WithHelp("home/g", "first page"),
+			key.WithKeys("home"),
+			key.WithHelp("Home", "first page"),
 		),
 		PageLast: key.NewBinding(
-			key.WithKeys("end", "G"),
-			key.WithHelp("end/G", "last page"),
+			key.WithKeys("end"),
+			key.WithHelp("End", "last page"),
 		),
+
+		// Filtering
 		Filter: key.NewBinding(
 			key.WithKeys("/"),
 			key.WithHelp("/", "filter"),
-		),
-		FilterBlur: key.NewBinding(
-			key.WithKeys("enter", "esc"),
-			key.WithHelp("enter/esc", "unfocus"),
 		),
 		FilterClear: key.NewBinding(
 			key.WithKeys("esc"),
 			key.WithHelp("esc", "clear filter"),
 		),
-		ScrollRight: key.NewBinding(
-			key.WithKeys("shift+right"),
-			key.WithHelp("shift+→", "scroll right"),
-		),
-		ScrollLeft: key.NewBinding(
-			key.WithKeys("shift+left"),
-			key.WithHelp("shift+←", "scroll left"),
+		FilterBlur: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "apply filter"),
 		),
 	}
 }

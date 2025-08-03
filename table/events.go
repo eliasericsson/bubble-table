@@ -49,6 +49,12 @@ type UserEventRowSelectToggled struct {
 	IsSelected bool
 }
 
+type UserEventCellSelectToggled struct {
+	RowIndex    int
+	ColumnIndex int
+	IsSelected  bool
+}
+
 // UserEventFilterInputFocused indicates that the user has focused the filter
 // text input, so that any other typing will type into the filter field.  Only
 // activates for the built-in filter text box.
